@@ -1,0 +1,80 @@
+// ***** simply typed lambda calculus *****
+data Expr = Var String      // variable reference
+| Abs String Type Expr      // function `fun(x: T) { e }`
+| App Expr Expr             // function application `e1(e2)`
+| Number Int                // number literal
+| ...                       // free to extend with more
+
+data Type = FunT Type Type  // function type `T1 -> T2`
+          | NumT            // number type
+          | ...             // may also be extended
+
+// type checker result when program is valid
+type TCResult<LBL, DATA> = (ScopeGraph<LBL, DATA>, Type)
+// if the program is not valid, just use `throw` to fail; error handling is not important for now
+
+
+// ***** scope graph interface you may assume *****
+
+// some representation of scopes
+type Scope = ...
+// some representation of scope graphs
+// - LBL: type parameter representing which labels are used in this scope graph
+// - DATA: type parameter representing the data that may be associated with a node/scope
+type ScopeGraph<LBL, DATA> = ...
+
+// create a new, empty scope graph
+fun empty_sg() -> ScopeGraph<LBL, DATA>
+
+// create a new scope in the given scope graph, with the given data
+fun new_scope(sg: ScopeGraph<LBL, DATA>, data: DATA) -> Scope
+
+// create a new edge in the scope graph
+fun add_edge(sg: ScopeGraph<LBL, DATA>, src: Scope, lbl: LBL, tgt: Scope)
+
+// resolve name resolution query in the scope graph
+fun query(
+  sg: ScopeGraph<LBL, DATA>,
+  src: Scope,
+  path_ok: Regex<LBL>,          // may be written in usual regex notation, e.g. `A* | B+C?`
+  data_ok: fn(DATA) -> boolean,
+  label_order: LabelOrder<LBL>  // may be written as a order: `A < B < C, A < D`
+) -> List<DATA>
+
+// if you do not yet understand one of these parameters, just put `TODO()`. We'll discuss them in the meeting.
+
+
+
+// ***** type checker, to be implemented *****
+
+data LCLbl  = ... // TODO: labels to be used
+data LCData = ... // TODO: data to be used
+
+fun typeCheck(expr: Expr) -> TCResult<LCLbl, LCData> {
+  let sg = empty_sg();
+  let global_scope = new_scope(sg, ???);
+  return typeOfExpr(sg, expr, global_scope);
+}
+
+fun typeOfExpr(sg: ScopeGraph<LCLbl, LCData>, expr: Expr, scope: Scope) -> TCResult {
+  // TODO
+}
+
+
+
+// ***** extension: add modules ******
+
+data Module = Module String [Def]       // name and body: `module X { def1; def2; ... }`
+data Def    = Import String             // import statement: `import X`
+            | Def    String Type Expr   // variable definition: `def x: T = e`
+
+type Program = [Module] // list of modules
+
+data MDLbl  = ... // TODO: labels to be used in this type checker
+data MDData = ... // TODO: data to be used in this type checker
+
+// function type-checking a program
+// no `Type` is returned here, as programs do not have a particular type
+fun programOk(prog: Program) -> ScopeGraph<MDLbl, MDData> {
+  // TODO
+}
